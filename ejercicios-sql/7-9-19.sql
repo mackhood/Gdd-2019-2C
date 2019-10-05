@@ -84,7 +84,7 @@ order by 3 DESC;
 
 --ej5
 
---hecho por nosotros
+--hecho por nosotros(esta ben corregido por el profe)
 select p1.prod_codigo,p1.prod_detalle,ISNULL((select sum(ifact.item_cantidad) from Item_Factura ifact join Factura f on
 f.fact_tipo = ifact.item_tipo and f.fact_numero = ifact.item_numero and f.fact_sucursal = ifact.item_sucursal
 where  ifact.item_producto = p1.prod_codigo and year(f.fact_fecha)=2012),0) as Cantidad
@@ -98,6 +98,41 @@ where  ifact.item_producto = p1.prod_codigo and year(f.fact_fecha)=2011),0)
  
 
 select top 1 * from cliente;
+
+
+
+--otra opcion con case
+
+select prod_codigo,prod_detalle,sum(case when year(fact_fecha)=2012 then item_cantidad else 0 end)
+from Producto p,Item_Factura i,Factura f
+ where i.item_producto = p.prod_codigo and i.item_tipo = f.fact_tipo and i.item_sucursal = f.fact_sucursal
+and i.item_numero = f.fact_numero
+and year(fact_fecha) in (2011,2012)
+group by prod_codigo, prod_detalle
+having sum(case when year(fact_fecha)=2012 then item_cantidad else -1*item_cantidad end) >0 ;
+
+
+----ejemplo de union(solo permite un order by)(Union si hay una fila de las uniones repetidas la muestra una sola vez encambio
+---el union all agrega todo
+
+use GD2015C1
+
+select clie_codigo,clie_telefono,0 from Cliente
+where clie_codigo not in(select fact_cliente from Factura)
+union
+select fact_cliente,clie_domicilio,sum(fact_total) from Cliente join Factura on clie_codigo =fact_cliente
+group by fact_cliente,clie_domicilio
+order by 2 asc;
+
+---
+
+
+
+
+
+
+
+
 
 
 
